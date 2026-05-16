@@ -1,5 +1,7 @@
 import asyncio
 from pyrogram import Client, filters
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import threading
 
 # --- မိမိ အချက်အလက်များ ---
 API_ID = 26733221               
@@ -31,12 +33,26 @@ async def search_book(client, message):
     else:
         await searching_msg.edit_text("❌ ရှာမတွေ့ပါဘူးခင်ဗျာ။")
 
-print("⚡ Bot Running with Async Loop...")
+# Render Web Service ရဲ့ Port Error ကို ကျော်ရန် ဆာဗာအတု ဆောက်ခြင်း
+class FaceServer(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+        self.wfile.write(b"Bot is Running Alive!")
 
-# Event Loop Error ကို ကျော်ရန် ဤနေရာကို ပြင်ဆင်ထားပါသည်
+def run_web_server():
+    server = HTTPServer(('0.0.0.0', 10000), FaceServer)
+    server.serve_forever()
+
 async def main():
+    # ဆာဗာအတုကို နောက်ကွယ်မှာ အလုပ်လုပ်ခိုင်းထားမည်
+    threading.Thread(target=run_web_server, daemon=True).start()
+    print("⚡ Fake Web Server Started for Render...")
+    print("⚡ Bot Started Successfully...")
     async with app:
         await asyncio.Event().wait()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
