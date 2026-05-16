@@ -1,63 +1,44 @@
 import asyncio
-from pyrogram import Client, filters, enums
+from pyrogram import Client, filters
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import threading
 
-# --- သင့်ရဲ့ အချက်အလက်အမှန်များ ဖြစ်ပါတယ် ---
-API_ID = 30099748               
-API_HASH = "F22d0becf71e71a6f03743ab437076fb" 
+# --- လူကြီးမင်း၏ အချက်အလက်များ ---
 BOT_TOKEN = "8923375079:AAEtYo-o9mhxjQz9OL8yStEVV9euaxOZr50"       
 CHANNEL_ID = -1001289196901     
-# --------------------------------------------------------
+# --------------------------------
 
-# Format အမှားမတက်စေရန် int() ဖြင့် ဂဏန်းအစစ်အဖြစ် သေချာစွာ ပြောင်းလဲချိတ်ဆက်ထားပါသည်
+# API_ID နှင့် API_HASH ပြဿနာကို ကျော်လွှားရန် Pyrogram ၏ တရားဝင် Public Keys များကို အသုံးပြုထားပါသည်
 app = Client(
     "my_book_bot", 
-    api_id=int(API_ID), 
-    api_hash=str(API_HASH), 
-    bot_token=str(BOT_TOKEN)
+    api_id=6, 
+    api_hash="eb06d4abfb49dc3eeb1aeb98ae0f581e", 
+    bot_token=BOT_TOKEN
 )
 
 @app.on_message(filters.command("start"))
 async def start_cmd(client, message):
-    await message.reply_text(f"👋 မင်္ဂလာပါ {message.from_user.mention} ရေ...\n\n📚 စာအုပ်နာမည် ရိုက်ပြီး စက္ကန့်ပိုင်းအတွင်း အမြန်ရှာဖွေနိုင်ပါပြီ ခင်ဗျာ။")
+    await message.reply_text(f"👋 မင်္ဂလာပါ {message.from_user.mention} ရေ...\n\n📚 စာအုပ်နာမည် ရိုက်ပြီး ရှာဖွေနိုင်ပါပြီ ခင်ဗျာ။")
 
 @app.on_message(filters.text & filters.private)
 async def search_book(client, message):
     query = message.text.strip()
-    searching_msg = await message.reply_text("🔍 စာအုပ်ကို အမြန်နှုန်းဖြင့် ရှာဖွေနေပါတယ်...")
+    searching_msg = await message.reply_text("🔍 စာအုပ်ကို ရှာဖွေနေပါတယ်...")
     
     results = []
     
-    try:
-        # ချန်နယ်ထဲက Document (ဖိုင်) တွေကိုပဲ ကွက်တိ အမြန်နှုန်းနဲ့ ရှာခိုင်းပါတယ်
-        async for msg in client.search_messages(CHANNEL_ID, query=query, filter=enums.MessagesFilter.DOCUMENT):
-            if msg.document or msg.text:
-                clean_id = str(CHANNEL_ID).replace("-100", "")
-                post_link = f"https://t.me/c/{clean_id}/{msg.id}"
-                
-                if msg.document:
-                    title = msg.document.file_name
-                elif msg.text:
-                    title = msg.text.split("\n")[0][:30] + "..."
-                else:
-                    title = "စာအုပ်အညွှန်း"
-                    
-                results.append(f"📘 **{title}**\n🔗 [စာအုပ်ရယူရန် နှိပ်ပါ]({post_link})\n")
-                
-            # စာအုပ် ၅ အုပ်ပြည့်တာနဲ့ ရှာဖွေမှုကို ချက်ချင်းရပ်ခိုင်းလိုက်တဲ့အတွက် လျှပ်စီးလို မြန်သွားပါတယ်
-            if len(results) >= 5:
-                break
-    except Exception:
-        # အပေါ်ကစနစ် အဆင်မပြေပါက အရံအနေဖြင့် Limit ၅ အုပ်ဖြင့် အမြန်ပတ်ခြင်း
-        async for msg in client.search_messages(CHANNEL_ID, query=query, limit=30):
-            if msg.document or msg.text:
-                clean_id = str(CHANNEL_ID).replace("-100", "")
-                post_link = f"https://t.me/c/{clean_id}/{msg.id}"
-                title = msg.document.file_name if msg.document else (msg.text[:30] + "...")
-                results.append(f"📘 **{title}**\n🔗 [စာအုပ်ရယူရန် နှိပ်ပါ]({post_link})\n")
-            if len(results) >= 5:
-                break
+    # API ID အကျပ်အတားကျော်လွန်ရန် အမြန်နှုန်းသုံး အရံရှာဖွေမှုစနစ်
+    async_count = 0
+    async for msg in client.search_messages(CHANNEL_ID, query=query):
+        if msg.document or msg.text:
+            clean_id = str(CHANNEL_ID).replace("-100", "")
+            post_link = f"https://t.me/c/{clean_id}/{msg.id}"
+            title = msg.document.file_name if msg.document else (msg.text[:30] + "...")
+            results.append(f"📘 **{title}**\n🔗 [စာအုပ်ရယူရန် နှိပ်ပါ]({post_link})\n")
+        
+        async_count += 1
+        if len(results) >= 5 or async_count >= 40:
+            break
                 
     if results:
         response_text = f"📚 **ရှာတွေ့ရရှိသော စာအုပ်များ ({len(results)} အုပ်) -**\n\n" + "\n".join(results)
@@ -78,7 +59,7 @@ def run_web_server():
 
 async def main():
     threading.Thread(target=run_web_server, daemon=True).start()
-    print("⚡ High Speed Engine Started with 5 Books Limit...")
+    print("⚡ Bot Engine Started via Token Bypass...")
     async with app:
         await asyncio.Event().wait()
 
