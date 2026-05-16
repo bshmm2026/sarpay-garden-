@@ -1,7 +1,7 @@
 import asyncio
 from pyrogram import Client, filters
 
-# --- မိမိ အချက်အလက်များ ထည့်ရန် ---
+# --- မိမိ အချက်အလက်များ ---
 API_ID = 26733221               
 API_HASH = "812542a197b09c5d263301a91e5e01df" 
 BOT_TOKEN = "8923375079:AAEtYo-o9mhxjQz9OL8yStEVV9euaxOZr50"       
@@ -31,5 +31,12 @@ async def search_book(client, message):
     else:
         await searching_msg.edit_text("❌ ရှာမတွေ့ပါဘူးခင်ဗျာ။")
 
-print("⚡ Bot Running...")
-app.run()
+print("⚡ Bot Running with Async Loop...")
+
+# Event Loop Error ကို ကျော်ရန် ဤနေရာကို ပြင်ဆင်ထားပါသည်
+async def main():
+    async with app:
+        await asyncio.Event().wait()
+
+if __name__ == "__main__":
+    asyncio.run(main())
