@@ -3,9 +3,9 @@ from pyrogram import Client, filters
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import threading
 
-# --- မိမိ အချက်အလက်များ ---
-API_ID = 26733221               
-API_HASH = "812542a197b09c5d263301a91e5e01df" 
+# --- မိမိ အချက်အလက်အမှန်များ သေချာပြန်ထည့်ရန် ---
+API_ID = 30099748               # ကိုယ့် API ID အမှန်ကို ပြန်စစ်ပြီးထည့်ပါ
+API_HASH = "f22d0becf71e71a6f03743ab437076fb" # ကိုယ့် HASH အမှန်ကို ထည့်ပါ
 BOT_TOKEN = "8923375079:AAEtYo-o9mhxjQz9OL8yStEVV9euaxOZr50"       
 CHANNEL_ID = -1001289196901     
 # -------------------------------------------
@@ -33,7 +33,6 @@ async def search_book(client, message):
     else:
         await searching_msg.edit_text("❌ ရှာမတွေ့ပါဘူးခင်ဗျာ။")
 
-# Render Web Service ရဲ့ Port Error ကို ကျော်ရန် ဆာဗာအတု ဆောက်ခြင်း
 class FaceServer(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
@@ -46,7 +45,6 @@ def run_web_server():
     server.serve_forever()
 
 async def main():
-    # ဆာဗာအတုကို နောက်ကွယ်မှာ အလုပ်လုပ်ခိုင်းထားမည်
     threading.Thread(target=run_web_server, daemon=True).start()
     print("⚡ Fake Web Server Started for Render...")
     print("⚡ Bot Started Successfully...")
