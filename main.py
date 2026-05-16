@@ -3,7 +3,7 @@ from pyrogram import Client, filters, enums
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import threading
 
-# --- သင့်ရဲ့ အချက်အလက်များဖြင့် ကွက်တိပြင်ဆင်ပြီး ---
+# --- သင့်ရဲ့ အချက်အလက်အမှန်များကို ကွက်တိ ထည့်သွင်းပေးထားပါတယ် ---
 API_ID = 30099748               
 API_HASH = "F22d0becf71e71a6f03743ab437076fb" 
 BOT_TOKEN = "8923375079:AAEtYo-o9mhxjQz9OL8yStEVV9euaxOZr50"       
